@@ -4,7 +4,6 @@ import pickle
 import csv
 import os
 
-
 class UrnaEletronica:
     def __init__(self, root):
         self.root = root
@@ -13,34 +12,38 @@ class UrnaEletronica:
         self.candidatos = []
         self.votos = []
         self.eleitor_atual = None
-
         self.criar_interface()
 
     def criar_interface(self):
-  
-     
-        tk.Button(self.root, text="Carregar Eleitores", command=self.carregar_eleitores).grid(row=0, column=0, padx=10, pady=5)
-        tk.Button(self.root, text="Carregar Candidatos", command=self.carregar_candidatos).grid(row=0, column=1, padx=10, pady=5)
+        botoes = [
+            ("Carregar Eleitores", self.carregar_eleitores, 0, 0),
+            ("Carregar Candidatos", self.carregar_candidatos, 0, 1),
+            ("Verificar Eleitor", self.verificar_eleitor, 1, 2),
+            ("Registrar Voto", self.registrar_voto, 3, 2),
+            ("Voto Branco", lambda: self.registrar_voto(branco=True), 4, 0),
+            ("Voto Nulo", lambda: self.registrar_voto(nulo=True), 4, 1),
+        ]
 
-  
-        tk.Label(self.root, text="Título do Eleitor:").grid(row=1, column=0, padx=10, pady=5)
-        self.entry_titulo = tk.Entry(self.root, width=20)
-        self.entry_titulo.grid(row=1, column=1, padx=10, pady=5)
-        tk.Button(self.root, text="Verificar Eleitor", command=self.verificar_eleitor).grid(row=1, column=2, padx=10, pady=5)
+        for texto, comando, row, col in botoes:
+            tk.Button(self.root, text=texto, command=comando).grid(row=row, column=col, padx=10, pady=5)
 
-     
+        entradas = [
+            ("Título do Eleitor:", 1, 0, self.create_entry("entry_titulo", 1, 1)),
+            ("Número do Candidato:", 3, 0, self.create_entry("entry_num_candidato", 3, 1)),
+        ]
+
+        for texto, row, col, _ in entradas:
+            tk.Label(self.root, text=texto).grid(row=row, column=col, padx=10, pady=5)
+
         self.label_eleitor = tk.Label(self.root, text="", fg="blue")
         self.label_eleitor.grid(row=2, column=0, columnspan=3, padx=10, pady=5)
 
- 
-        tk.Label(self.root, text="Número do Candidato:").grid(row=3, column=0, padx=10, pady=5)
-        self.entry_num_candidato = tk.Entry(self.root, width=20)
-        self.entry_num_candidato.grid(row=3, column=1, padx=10, pady=5)
-        tk.Button(self.root, text="Registrar Voto", command=self.registrar_voto).grid(row=3, column=2, padx=10, pady=5)
-
-      
-        tk.Button(self.root, text="Voto Branco", command=lambda: self.registrar_voto(branco=True)).grid(row=4, column=0, padx=10, pady=5)
-        tk.Button(self.root, text="Voto Nulo", command=lambda: self.registrar_voto(nulo=True)).grid(row=4, column=1, padx=10, pady=5)
+    def create_entry(self, var_name, row, col):
+        """Método auxiliar para criar entradas e atribuí-las a um atributo."""
+        entry = tk.Entry(self.root, width=20)
+        setattr(self, var_name, entry)
+        entry.grid(row=row, column=col, padx=10, pady=5)
+        return entry
 
     def carregar_arquivo(self):
       
@@ -124,9 +127,3 @@ class UrnaEletronica:
         self.entry_num_candidato.delete(0, tk.END)
         self.label_eleitor.config(text="")
         self.eleitor_atual = None
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    urna = UrnaEletronica(root)
-    root.mainloop()
